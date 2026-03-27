@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "Category": {
+      "title": "Category",
+      "description": "A spending category with a target amount",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "target_amount": { "type": "number" },
+        "uid": { "type": "string", "description": "User ID of the owner" }
+      },
+      "required": ["name", "target_amount", "uid"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "An expense record",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "vendor": { "type": "string" },
+        "amount": { "type": "number" },
+        "category_id": { "type": "string", "description": "ID of the category document" },
+        "category_name": { "type": "string" },
+        "notes": { "type": "string" },
+        "uid": { "type": "string", "description": "User ID of the owner" }
+      },
+      "required": ["date", "vendor", "amount", "category_id", "category_name", "uid"]
+    },
+    "Income": {
+      "title": "Income",
+      "description": "An income record",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "source": { "type": "string" },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "notes": { "type": "string" },
+        "uid": { "type": "string", "description": "User ID of the owner" }
+      },
+      "required": ["date", "source", "amount", "category", "uid"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "User's spending categories"
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "User's expense transactions"
+    },
+    "/users/{userId}/income/{incomeId}": {
+      "schema": "Income",
+      "description": "User's income records"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --color-fintech-bg: #0f172a;
+  --color-fintech-card: #1e293b;
+  --color-fintech-accent: #10b981;
+  --color-fintech-import: #3b82f6;
+  --color-fintech-danger: #ef4444;
+  --color-fintech-text: #f8fafc;
+  --color-fintech-muted: #94a3b8;
+}
+
+body {
+  background-color: var(--color-fintech-bg);
+  color: var(--color-fintech-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+}
+
+@media (min-width: 1024px) {
+  body {
+    font-size: 12px;
+  }
+}
+
+.glass-card {
+  background: rgba(21, 28, 44, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@layer base {
+  input, select, textarea {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--color-fintech-accent);
+    ring: 2px solid var(--color-fintech-accent);
+  }
+
+  button {
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  button:active {
+    transform: scale(0.98);
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

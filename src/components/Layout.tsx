@@ -1,0 +1,235 @@
+import React, { useMemo, useState } from "react";
+import {
+  BarChart3,
+  Bell,
+  CalendarDays,
+  CircleHelp,
+  Home,
+  List,
+  LogIn,
+  LogOut,
+  Plus,
+  Search,
+  Settings as SettingsIcon,
+  User,
+  Wallet2
+} from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { View } from "../types";
+import { useFirebase } from "../contexts/FirebaseContext";
+
+interface LayoutProps {
+  children: React.ReactNode;
+  currentView: View;
+  setView: (view: View) => void;
+}
+
+const PAGE_META: Record<View, { title: string; searchPlaceholder: string }> = {
+  dashboard: { title: "Dashboard", searchPlaceholder: "Search insights..." },
+  transactions: { title: "Transactions", searchPlaceholder: "Search transactions..." },
+  analysis: { title: "Stats", searchPlaceholder: "Search insights..." },
+  settings: { title: "Settings", searchPlaceholder: "Search settings..." },
+};
+
+export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
+  const { user, signIn, logout } = useFirebase();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const navItems = useMemo(() => ([
+    { id: "dashboard", icon: Home, label: "Home" },
+    { id: "transactions", icon: List, label: "Transactions" },
+    { id: "analysis", icon: BarChart3, label: "Stats" },
+    { id: "settings", icon: SettingsIcon, label: "Settings" },
+  ]), []);
+
+  const pageMeta = PAGE_META[currentView];
+
+  return (
+    <div className="min-h-screen bg-[#060e20] text-fintech-text">
+      <div className="flex min-h-screen w-full overflow-hidden">
+        <aside className="hidden h-screen w-60 shrink-0 flex-col bg-[#0f1930] shadow-[20px_0_40px_rgba(0,0,0,0.15)] md:flex">
+          <div className="flex h-full flex-col py-8">
+            <div className="mb-10 px-7">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#192540] text-fintech-accent">
+                  <Wallet2 size={20} />
+                </div>
+                <div>
+                  <h1 className="text-base font-bold tracking-tight leading-none text-fintech-accent">
+                    Vibe<span className="text-fintech-accent">Budget</span>
+                  </h1>
+                  <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-fintech-muted/70">
+                    Wealth Cockpit
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <nav className="flex flex-1 flex-col space-y-1.5">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentView === item.id;
+
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setView(item.id as View)}
+                    className={`relative flex items-center gap-3 px-5 py-2.5 text-left transition-colors duration-200 ${
+                      isActive
+                        ? "border-l-4 border-fintech-accent bg-[#192540] font-bold text-fintech-accent"
+                        : "text-[#a3aac4] hover:bg-[#1f2b49] hover:text-white"
+                    }`}
+                  >
+                    <Icon size={19} strokeWidth={isActive ? 2.4 : 2} />
+                    <span className="text-[13px] font-medium tracking-tight">{item.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+
+            <div className="mt-auto space-y-2">
+              <button className="flex w-full items-center gap-3 px-5 py-2.5 text-[#a3aac4] transition-colors duration-200 hover:bg-[#1f2b49] hover:text-white">
+                <CircleHelp size={18} />
+                <span className="text-[13px] font-medium tracking-tight">Help</span>
+              </button>
+              <button
+                onClick={() => logout()}
+                className="flex w-full items-center gap-3 px-5 py-2.5 text-[#a3aac4] transition-colors duration-200 hover:bg-[#1f2b49] hover:text-fintech-danger"
+              >
+                <LogOut size={18} />
+                <span className="text-[13px] font-medium tracking-tight">Logout</span>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          <header className="sticky top-0 z-40 flex h-[72px] items-center justify-between border-b border-white/5 bg-[#060e20]/60 px-6 backdrop-blur-md">
+            <h2 className="text-lg font-semibold tracking-tight text-white">{pageMeta.title}</h2>
+
+            <div className="flex items-center gap-5">
+              <div className="flex items-center justify-between gap-5">
+                <div className="relative hidden xl:block">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-fintech-muted" size={16} />
+                  <input
+                    type="text"
+                    placeholder={pageMeta.searchPlaceholder}
+                    className="w-[280px] rounded-lg border border-white/5 bg-[#192540] py-2 pl-10 pr-4 text-[13px] text-white placeholder:text-fintech-muted"
+                  />
+                </div>
+                <button className="text-fintech-muted transition-colors hover:text-fintech-accent">
+                  <CalendarDays size={19} />
+                </button>
+                <button className="relative text-fintech-muted transition-colors hover:text-fintech-accent">
+                  <Bell size={19} />
+                  <span className="absolute -right-0.5 -top-1 h-2 w-2 rounded-full bg-[#ff716a]" />
+                </button>
+              </div>
+              <div className="h-8 w-px bg-white/10" />
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowProfileMenu((value) => !value)}
+                  className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-[#192540]"
+                >
+                  {user?.photoURL ? (
+                    <img src={user.photoURL} alt="Profile" className="h-full w-full object-cover" />
+                  ) : (
+                    <User size={16} className="text-white" />
+                  )}
+                </button>
+                <button
+                  onClick={() => setView("transactions")}
+                  className="inline-flex items-center gap-2 rounded-lg bg-[linear-gradient(135deg,_#69f6b8_0%,_#06b77f_100%)] px-4 py-2 text-[13px] font-semibold text-[#002919]"
+                >
+                  <Plus size={14} />
+                  <span>Add Transaction</span>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <main className="flex-1 overflow-y-auto no-scrollbar">
+            <motion.div
+              key={currentView}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.24 }}
+              className="mx-auto w-full max-w-7xl p-6"
+            >
+              {children}
+            </motion.div>
+          </main>
+
+          <nav className="sticky bottom-0 z-50 flex items-center justify-between border-t border-white/5 bg-[#0f1627]/95 px-4 py-3 backdrop-blur-xl md:hidden">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentView === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setView(item.id as View)}
+                  className={`flex flex-col items-center gap-1 rounded-xl px-2 py-1 transition-colors ${
+                    isActive ? "text-fintech-accent" : "text-fintech-muted"
+                  }`}
+                >
+                  <Icon size={20} strokeWidth={isActive ? 2.3 : 2} />
+                  <span className="text-[9px] font-medium">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {showProfileMenu && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowProfileMenu(false)}
+              className="fixed inset-0 z-[61]"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.96 }}
+              className="fixed right-8 top-24 z-[62] w-64 rounded-xl border border-white/10 bg-[#111a2d] p-3 shadow-2xl backdrop-blur-xl"
+            >
+              {user ? (
+                <div className="space-y-2">
+                  <div className="rounded-2xl border border-white/5 bg-white/5 px-4 py-3">
+                    <p className="truncate text-sm font-semibold">{user.displayName || "User"}</p>
+                    <p className="truncate text-xs text-fintech-muted">{user.email}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setShowProfileMenu(false);
+                    }}
+                    className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-fintech-danger transition-colors hover:bg-white/5"
+                  >
+                    <LogOut size={18} />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    signIn();
+                    setShowProfileMenu(false);
+                  }}
+                  className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left text-fintech-accent transition-colors hover:bg-white/5"
+                >
+                  <LogIn size={18} />
+                  <span>Sign In with Google</span>
+                </button>
+              )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
